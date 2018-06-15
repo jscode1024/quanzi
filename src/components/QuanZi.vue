@@ -1,0 +1,137 @@
+<template>
+    <div>
+        <navtable @changeUserList="alterUserList"></navtable>   
+        <userlist v-if="isQuanZi" :quanziData="quanziData" :more="moreContent"></userlist>
+        <userlist v-else :userData="userData" :more="moreContent"></userlist>
+        <titlelist title="热门推荐"></titlelist>
+        <div  v-waterfall-lower="loadMore"
+         waterfall-disabled="disabled"
+        waterfall-offset="400" v-if="contentList && contentList.length>0">
+        <contentlist v-for="(item,index) in contentList" :key="index" :item="item"></contentlist>
+        </div>
+        <div v-else>
+            <kongbai :msg="kongbaiMsg" :kongbaiHeight="kongbaiHeight"></kongbai>
+        </div>
+        <loadstatus v-show="isLoad" :proploadmsg="proploadmsg"></loadstatus>
+    </div>
+</template>
+<script>
+import navtable from '@/components/unit/NavTable'
+import userlist from '@/components/unit/UserList'
+import titlelist from '@/components/unit/TitleList'
+import contentlist from '@/components/unit/ContentList'
+import loadstatus from '@/components/unit/LoadStatus'
+import url from '@/serviceAPI.config.js'
+import axios from 'axios'
+import qs from 'qs'
+import { Waterfall,Toast } from 'vant';
+import kongbai from '@/components/unit/KongBai'
+export default {
+    data(){
+        return{
+            moreContent:"更多圈子",
+            pageNum:1,
+            pageSize:10,
+            hasNextPage:false,
+            contentList:[],
+            proploadmsg:"正在加载更多...",
+            isLoad:false,
+            quanziData:[],
+            userData:[],
+            isQuanZi:true,
+            index:0,
+            kongbaiMsg:"暂无更多内容",
+            kongbaiHeight:150
+        }
+    },
+    components:{
+        navtable,userlist,titlelist,contentlist,loadstatus,kongbai
+    },
+    methods:{
+        loadMore() {
+            if(this.hasNextPage){
+                this.disabled = true;
+                setTimeout(() => {
+                this.getPost()
+                this.disabled = false
+                }, 1000)
+            }else{
+                this.proploadmsg="没有更多了..."
+            }
+            
+        },
+        alterUserList(index){
+            this.index=index
+            if(this.index==0){
+                this.isQuanZi=true
+                this.moreContent="更多圈子"
+            }else{
+                this.isQuanZi=false
+                this.moreContent="更多达人"
+            }
+        },
+        getPost(){
+            let obj={
+            pageNum:this.pageNum,
+            pageSize:this.pageSize
+            }
+            axios.post(url.getHotTopicList,qs.stringify(obj),{
+                headers:{
+                    'Content-Type':'application/x-www-form-urlencoded'
+                }
+            }).then(response=>{
+                console.log(response)
+                if(response.data.statusCode=="SUCCESS"){
+                    if(response.data.data.list.length>0){
+                        this.isLoad=true
+                    }
+                    this.contentList=this.contentList.concat(response.data.data.list)
+                    this.hasNextPage=response.data.data.hasNextPage
+                    this.pageNum=response.data.data.nextPage
+                }
+                Toast.clear()
+            }).catch((error)=>{
+                Toast('网络不畅，请求数据失败，请尝试刷新~')
+            })
+        },
+        getHotGroup(){
+            axios.get(url.getHotList)
+            .then(response=>{
+                console.log(response)
+                if(response.data.statusCode=="SUCCESS"){
+                    this.quanziData=response.data.data
+                }
+            }).catch(error=>{
+                Toast('网络不畅，请求数据失败，请尝试刷新~')
+            })
+        },
+        getUserList(){
+            axios.get(url.getFashionList)
+            .then(response=>{
+                console.log(response)
+                if(response.data.statusCode=="SUCCESS"){
+                    this.userData=response.data.data
+                }
+            }).catch(error=>{
+                Toast('网络不畅，请求数据失败，请尝试刷新~')
+            })
+        }
+    },
+    created(){
+        Toast.loading({
+        mask: true,
+        message: '加载中...'
+        })
+        this.getPost()
+        this.getHotGroup()
+        this.getUserList()
+    },directives: {
+        WaterfallLower: Waterfall('lower')
+    },
+}
+</script>
+<style lang="stylus">
+
+</style>
+
+
