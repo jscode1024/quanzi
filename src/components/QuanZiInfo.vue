@@ -4,11 +4,15 @@
             <signtitle></signtitle>
             <userlist :userData="userData" :more="moreContent"></userlist>
             <titlelist title="最新发表"></titlelist>
-        <div  v-waterfall-lower="loadMore"
-         waterfall-disabled="disabled"
-        waterfall-offset="400" v-if="contentList && contentList.length>0">
+        <van-list
+        v-model="loading"
+        :finished="finished"
+        @load="onLoad"
+        :offset="10"
+        v-if="contentList && contentList.length>0"
+        >
             <contentlist v-for="(item,index) in contentList" :key="index" :item="item"></contentlist>
-         </div>
+        </van-list>
          <div v-else>
             <kongbai :msg="kongbaiMsg" :kongbaiHeight="kongbaiHeight"></kongbai>
          </div>
@@ -25,15 +29,16 @@ import loadstatus from '@/components/unit/LoadStatus'
 import axios from 'axios'
 import url from '@/serviceAPI.config.js'
 import qs from 'qs'
-import { Waterfall,Toast,Dialog  } from 'vant';
+import { Waterfall,Toast,Dialog,List  } from 'vant'
+import Vue from 'vue'
 import kongbai from '@/components/unit/KongBai'
+Vue.use(List)
 export default {
     data(){
         return{
             contentList:[],
-            proploadmsg:"正在加载更多...",
+            proploadmsg:"",
             isLoad:false,
-            disabled: false,
             group_id:0,
             pageNum:1,
             pageSize:10,
@@ -45,7 +50,9 @@ export default {
             moreContent:"更多达人",
             kongbaiMsg:"暂无更多内容",
             kongbaiHeight:150,
-            pageTitle:""
+            pageTitle:"",
+            loading: false,
+            finished: false
         }
     },
     components:{
@@ -60,16 +67,17 @@ export default {
         this.getPost()
     },
     methods:{
-        loadMore() {
-            this.disabled = true
+        onLoad() {
             setTimeout(() => {
                 if(this.hasNextPage){
                     this.getPost()
                 }else{
+                    this.finished = true
+                    this.isLoad=true
                     this.proploadmsg="没有更多了..."
                 }
-                this.disabled = false
-            }, 200)
+                this.loading = false
+            }, 500);
         },
         getPost(){
             let obj={
@@ -84,7 +92,7 @@ export default {
             }).then(response=>{
                 if(response.data.statusCode=="SUCCESS"){
                     if(response.data.data.list.length>0){
-                        this.isLoad=true
+                        
                     }
                     this.contentList=this.contentList.concat(response.data.data.list)
                     this.hasNextPage=response.data.data.hasNextPage
@@ -95,7 +103,7 @@ export default {
                 }
                 Toast.clear()
             }).catch((error)=>{
-                Toast('网络不畅，请求数据失败，请尝试刷新~')
+                Toast('没有更多数据了~')
             })
         },
         getGroup(){

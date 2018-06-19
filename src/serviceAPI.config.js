@@ -1,4 +1,5 @@
-const BASEURL="http://192.168.0.140:6060/"
+const BASEURL=window.g.ApiUrl
+// const BASEURL='http://192.168.0.140:6060/'
 const URL={
     // 获得圈子详情接口
     getQuanZiInfo:BASEURL+'h5/topic/group/findRecommendByGroupId',

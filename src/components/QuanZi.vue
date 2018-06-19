@@ -4,11 +4,15 @@
         <userlist v-if="isQuanZi" :quanziData="quanziData" :more="moreContent"></userlist>
         <userlist v-else :userData="userData" :more="moreContent"></userlist>
         <titlelist title="热门推荐"></titlelist>
-        <div  v-waterfall-lower="loadMore"
-         waterfall-disabled="disabled"
-        waterfall-offset="400" v-if="contentList && contentList.length>0">
-        <contentlist v-for="(item,index) in contentList" :key="index" :item="item"></contentlist>
-        </div>
+        <van-list
+        v-model="loading"
+        :finished="finished"
+        @load="onLoad"
+        :offset="10"
+        v-if="contentList && contentList.length>0"
+        >
+            <contentlist v-for="(item,index) in contentList" :key="index" :item="item"></contentlist>
+        </van-list>
         <div v-else>
             <kongbai :msg="kongbaiMsg" :kongbaiHeight="kongbaiHeight"></kongbai>
         </div>
@@ -24,7 +28,9 @@ import loadstatus from '@/components/unit/LoadStatus'
 import url from '@/serviceAPI.config.js'
 import axios from 'axios'
 import qs from 'qs'
-import { Waterfall,Toast } from 'vant';
+import { Waterfall,Toast,List } from 'vant'
+import Vue from 'vue'
+Vue.use(List)
 import kongbai from '@/components/unit/KongBai'
 export default {
     data(){
@@ -34,31 +40,33 @@ export default {
             pageSize:10,
             hasNextPage:false,
             contentList:[],
-            proploadmsg:"正在加载更多...",
+            proploadmsg:"",
             isLoad:false,
             quanziData:[],
             userData:[],
             isQuanZi:true,
             index:0,
             kongbaiMsg:"暂无更多内容",
-            kongbaiHeight:150
+            kongbaiHeight:150,
+            loading: false,
+            finished: false
         }
     },
     components:{
         navtable,userlist,titlelist,contentlist,loadstatus,kongbai
     },
     methods:{
-        loadMore() {
-            if(this.hasNextPage){
-                this.disabled = true;
-                setTimeout(() => {
-                this.getPost()
-                this.disabled = false
-                }, 1000)
-            }else{
-                this.proploadmsg="没有更多了..."
-            }
-            
+        onLoad() {
+            setTimeout(() => {
+                if(this.hasNextPage){
+                    this.getPost()
+                }else{
+                    this.finished = true
+                    this.isLoad=true
+                    this.proploadmsg="没有更多了..."
+                }
+                this.loading = false
+            }, 500);
         },
         alterUserList(index){
             this.index=index
@@ -83,7 +91,6 @@ export default {
                 console.log(response)
                 if(response.data.statusCode=="SUCCESS"){
                     if(response.data.data.list.length>0){
-                        this.isLoad=true
                     }
                     this.contentList=this.contentList.concat(response.data.data.list)
                     this.hasNextPage=response.data.data.hasNextPage
@@ -91,7 +98,7 @@ export default {
                 }
                 Toast.clear()
             }).catch((error)=>{
-                Toast('网络不畅，请求数据失败，请尝试刷新~')
+                Toast('没有更多数据了~')
             })
         },
         getHotGroup(){
