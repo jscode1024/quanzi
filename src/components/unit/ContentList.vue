@@ -20,8 +20,7 @@
             {{item.title}}
         </div>
         <div v-if="imgcounts>=3" @click="goToTieZi(item.id)">
-            <div class="content">
-                {{newContent}}
+            <div class="content" v-html="newContent">
             </div>
             <div class="imglist">
                 <div class="imgunit" v-for="(img,index) in imgUrl.slice(0,3)" :key="index" v-html="img">
@@ -30,16 +29,14 @@
         </div>
         <div v-else-if="imgcounts===1 || imgcounts===2"  @click="goToTieZi(item.id)">
             <div class="oneimg">
-                <div class="contentone">
-                    {{newContent}}
+                <div class="contentone" v-html="newContent">
                 </div>
                 <div class="imglistone" v-html="imgUrl[0]">
                 </div>
             </div>
         </div>
         <div v-else  @click="goToTieZi(item.id)">
-            <div class="content">
-                {{newContent }}
+            <div class="content" v-html="newContent">
             </div>
         </div>
         
@@ -67,6 +64,9 @@ export default {
     methods:{
         getUrlArr(){
             this.imgUrl=this.content.match(/<img[^>]*>/gi)
+            this.imgUrl=this.imgUrl.map(function(item,index){
+                return item.replace(/\\/g,'')
+            })
         },
         getimgcounts(){
             if(this.imgUrl){
@@ -206,7 +206,7 @@ export default {
             flex 0 0 33.3%
             img 
                 width 90% 
-                height 56%
+                height 70px
     .oneimg
         display flex
         margin-top 13px
@@ -216,7 +216,7 @@ export default {
             -webkit-box-orient vertical
             -webkit-line-clamp 3
             overflow hidden
-            line-height 22px
+            line-height 25px
             font-size 15px
             text-align left
         .imglistone
@@ -224,7 +224,7 @@ export default {
             align-self center
             img 
                 width 90% 
-                height 56%
+                height 70px
 
 
 
