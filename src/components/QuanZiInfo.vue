@@ -8,7 +8,7 @@
         v-model="loading"
         :finished="finished"
         @load="onLoad"
-        :offset="10"
+        :offset="1"
         v-if="contentList && contentList.length>0"
         >
             <contentlist v-for="(item,index) in contentList" :key="index" :item="item"></contentlist>
@@ -52,7 +52,9 @@ export default {
             kongbaiHeight:150,
             pageTitle:"",
             loading: false,
-            finished: false
+            finished: false,
+            total:0,
+            contentListLength:0
         }
     },
     components:{
@@ -64,25 +66,24 @@ export default {
         message: '加载中...'
         })
         this.getGroupId()
-        this.getPost()
+        this.getPost(this.pageNum)
     },
     methods:{
         onLoad() {
-            setTimeout(() => {
-                if(this.hasNextPage){
-                    this.getPost()
-                }else{
-                    this.finished = true
-                    this.isLoad=true
+            if(this.contentListLength >= this.total) {
+                    this.isLoad = true; //顯示底部已經到底了
                     this.proploadmsg="没有更多了..."
+					this.finished = true; //加载已全部完成
+                    this.loading = false; //隐藏底部加载中提示
+					return;
                 }
-                this.loading = false
-            }, 500);
+            this.pageNum++
+            this.getPost(this.pageNum)
         },
-        getPost(){
+        getPost(pageNum){
             let obj={
             group_id:this.group_id,
-            pageNum:this.pageNum,
+            pageNum:pageNum,
             pageSize:this.pageSize
             }
             axios.post(url.getQuanZiInfo,qs.stringify(obj),{
@@ -95,13 +96,16 @@ export default {
                         
                     }
                     this.contentList=this.contentList.concat(response.data.data.list)
+                    this.contentListLength=this.contentList.length
+                    this.total=response.data.data.total
                     this.hasNextPage=response.data.data.hasNextPage
                     this.careforGroupCount=response.data.data.list[0].careforGroupCount
-                    this.pageNum=response.data.data.nextPage
+                    // this.pageNum=response.data.data.nextPage
                     this.pageTitle=response.data.data.list[0].topicGroupName
                     this.getType()
                 }
                 Toast.clear()
+                this.loading = false
             }).catch((error)=>{
                 Toast('没有更多数据了~')
             })

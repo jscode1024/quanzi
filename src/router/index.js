@@ -8,11 +8,11 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/',
+      path: '/quanzi',
       component: quanzi
     },
     {
-      path:'/quanziinfo',
+      path:'/',
       component:quanziinfo
     }
   ]

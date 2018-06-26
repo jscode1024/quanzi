@@ -8,7 +8,7 @@
         v-model="loading"
         :finished="finished"
         @load="onLoad"
-        :offset="10"
+        :offset="1"
         v-if="contentList && contentList.length>0"
         >
             <contentlist v-for="(item,index) in contentList" :key="index" :item="item"></contentlist>
@@ -49,7 +49,9 @@ export default {
             kongbaiMsg:"暂无更多内容",
             kongbaiHeight:150,
             loading: false,
-            finished: false
+            finished: false,
+            total:0,
+            contentListLength:0
         }
     },
     components:{
@@ -57,16 +59,15 @@ export default {
     },
     methods:{
         onLoad() {
-            setTimeout(() => {
-                if(this.hasNextPage){
-                    this.getPost()
-                }else{
-                    this.finished = true
-                    this.isLoad=true
+            if(this.contentListLength >= this.total) {
+                    this.isLoad = true; //顯示底部已經到底了
                     this.proploadmsg="没有更多了..."
+					this.finished = true; //加载已全部完成
+                    this.loading = false; //隐藏底部加载中提示
+					return;
                 }
-                this.loading = false
-            }, 500);
+            this.pageNum++
+            this.getPost(this.pageNum)
         },
         alterUserList(index){
             this.index=index
@@ -78,9 +79,9 @@ export default {
                 this.moreContent="更多达人"
             }
         },
-        getPost(){
+        getPost(pageNum){
             let obj={
-            pageNum:this.pageNum,
+            pageNum:pageNum,
             pageSize:this.pageSize
             }
             axios.post(url.getHotTopicList,qs.stringify(obj),{
@@ -93,10 +94,12 @@ export default {
                     if(response.data.data.list.length>0){
                     }
                     this.contentList=this.contentList.concat(response.data.data.list)
+                    this.contentListLength=this.contentList.length
                     this.hasNextPage=response.data.data.hasNextPage
                     this.pageNum=response.data.data.nextPage
                 }
                 Toast.clear()
+                this.loading = false;
             }).catch((error)=>{
                 Toast('没有更多数据了~')
             })
@@ -129,7 +132,7 @@ export default {
         mask: true,
         message: '加载中...'
         })
-        this.getPost()
+        this.getPost(this.pageNum)
         this.getHotGroup()
         this.getUserList()
     },directives: {

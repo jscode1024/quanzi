@@ -73,7 +73,7 @@ export default {
         },
         goToAnotherPages(item){
             if(item.code=='DEFAULT'){
-                this.goToUserPage(item.id)
+                this.goToQuanziInfo(item.id)
             }else{
                 this.goToOtherPages(item.url)
             }
