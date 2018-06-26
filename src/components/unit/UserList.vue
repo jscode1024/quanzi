@@ -1,6 +1,6 @@
 <template>
     <div class="userlist" v-if="(quanziData && quanziData.length>0)">
-            <div class="unit" v-for="(item,index) in quanziData.slice(0,4)" :key="index" @click="goToQuanziInfo(item.id)">
+            <div class="unit" v-for="(item,index) in quanziData.slice(0,4)" :key="index" @click="goToAnotherPages(item)">
                 <div class="top">
                     <img :src="item.icon_url" alt="">
                 </div>
@@ -67,6 +67,16 @@ export default {
         },
         goToMoreDaren(){
             window.location.href=url.goMoreDaren
+        },
+        goToOtherPages(url){
+            window.location.href=url
+        },
+        goToAnotherPages(item){
+            if(item.code=='DEFAULT'){
+                this.goToUserPage(item.id)
+            }else{
+                this.goToOtherPages(item.url)
+            }
         }
     }
     

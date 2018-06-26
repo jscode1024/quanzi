@@ -29,7 +29,7 @@
         </div>
         <div v-else-if="imgcounts===1 || imgcounts===2"  @click="goToTieZi(item.id)">
             <div class="oneimg">
-                <div class="contentone" v-html="newContent">
+                <div class="contentone"  v-html="newContent">
                 </div>
                 <div class="imglistone" v-html="imgUrl[0]">
                 </div>
@@ -64,9 +64,11 @@ export default {
     methods:{
         getUrlArr(){
             this.imgUrl=this.content.match(/<img[^>]*>/gi)
-            this.imgUrl=this.imgUrl.map(function(item,index){
-                return item.replace(/\\/g,'')
-            })
+            if(this.imgUrl && this.imgUrl.length>0){
+                this.imgUrl=this.imgUrl.map(function(item,index){
+                    return item.replace(/\\/g,'')
+                })
+            }
         },
         getimgcounts(){
             if(this.imgUrl){
@@ -204,6 +206,8 @@ export default {
         justify-content center
         .imgunit
             flex 0 0 33.3%
+            padding: 0 5px;
+            box-sizing: border-box;
             img 
                 width 90% 
                 height 70px

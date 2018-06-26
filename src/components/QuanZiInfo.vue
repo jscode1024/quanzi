@@ -130,14 +130,26 @@ export default {
                         Toast.success('取消成功')
                     }
                 }else if(response.data.statusCode=="UNAUTHORIZED"){
-                    window.location.href=url.goLoginPage
+                    window.browserController && window.browserController.viewLoginPage && window.browserController.viewLoginPage(null);
+							window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.myMobile.postMessage({
+								"method": "viewLoginPage",
+								"args": {
+                                    url:""
+                                }
+							});
                 }else if(response.data.statusCode=="IS_GUEST"){
                     window.location.href=url.goVisitorPage
                 }
             }).catch((error)=>{
                 try{
                 if(error.response.data.statusCode=="UNAUTHORIZED"){
-                    window.location.href=url.goLoginPage
+                    window.browserController && window.browserController.viewLoginPage && window.browserController.viewLoginPage(null);
+							window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.myMobile.postMessage({
+								"method": "viewLoginPage",
+								"args": {
+                                    url:""
+                                }
+							});
                 }else if(error.response.data.statusCode=="IS_GUEST"){
                     window.location.href=url.goVisitorPage
                 }else{
