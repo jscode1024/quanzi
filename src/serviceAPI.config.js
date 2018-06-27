@@ -24,6 +24,8 @@ const URL={
     // 跳转圈子详情页
     goQuanZi:BASEURL+'h5_static/topic_group/quanziinfo/index.html',
     // 跳转达人列表页
-    goMoreDaren:BASEURL+'h5_static/topic_group/darenlist/index.html'
+    goMoreDaren:BASEURL+'h5_static/topic_group/darenlist/index.html',
+    // 圈子详情达人榜单
+    getDaRenBangDan:BASEURL+'h5/topic/group/getUserInfoByGroupId'
 }
 module.exports=URL

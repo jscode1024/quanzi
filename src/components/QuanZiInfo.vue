@@ -2,7 +2,7 @@
     <div>
         <toptitle :isFocused="isFocus" @changeAdd="changeAddDelete" :title="pageTitle"></toptitle>
             <signtitle></signtitle>
-            <userlist :userData="userData" :more="moreContent"></userlist>
+            <darenlist :darenData="darenData"></darenlist>
             <titlelist title="最新发表"></titlelist>
         <van-list
         v-model="loading"
@@ -22,7 +22,6 @@
 <script>
 import toptitle from '@/components/unit/TopTitle'
 import signtitle from '@/components/unit/SignTitle'
-import userlist from '@/components/unit/UserList'
 import titlelist from '@/components/unit/TitleList'
 import contentlist from '@/components/unit/ContentList'
 import loadstatus from '@/components/unit/LoadStatus'
@@ -32,6 +31,7 @@ import qs from 'qs'
 import { Waterfall,Toast,Dialog,List  } from 'vant'
 import Vue from 'vue'
 import kongbai from '@/components/unit/KongBai'
+import darenlist from '@/components/unit/DaRenList'
 Vue.use(List)
 export default {
     data(){
@@ -54,11 +54,12 @@ export default {
             loading: false,
             finished: false,
             total:0,
-            contentListLength:0
+            contentListLength:0,
+            darenData:[]
         }
     },
     components:{
-        toptitle,signtitle,userlist,titlelist,contentlist,loadstatus,kongbai
+        toptitle,signtitle,titlelist,contentlist,loadstatus,kongbai,darenlist
     },
     created(){
         Toast.loading({
@@ -67,6 +68,7 @@ export default {
         })
         this.getGroupId()
         this.getPost(this.pageNum)
+        this.getDarenList()
     },
     methods:{
         onLoad() {
@@ -140,7 +142,8 @@ export default {
 								"args": {
                                     url:""
                                 }
-							});
+                            });
+                    Toast('请先登录~')
                 }else if(response.data.statusCode=="IS_GUEST"){
                     window.location.href=url.goVisitorPage
                 }
@@ -153,7 +156,8 @@ export default {
 								"args": {
                                     url:""
                                 }
-							});
+                            });
+                    Toast('请先登录~')
                 }else if(error.response.data.statusCode=="IS_GUEST"){
                     window.location.href=url.goVisitorPage
                 }else{
@@ -179,6 +183,25 @@ export default {
         },
         getGroupId(){
             this.group_id=parseInt(window.location.href.split('?')[1].split('=')[1])
+        },
+        getDarenList(){
+            let obj={
+            groupId:this.group_id,
+            }
+            axios.post(url.getDaRenBangDan,qs.stringify(obj),{
+                headers:{
+                    'Content-Type':'application/x-www-form-urlencoded'
+                }
+            }).then(response=>{
+                console.log(response)
+                if(response.data.statusCode=="SUCCESS"){
+                        this.darenData=response.data.data
+                }
+                Toast.clear()
+                this.loading = false
+            }).catch((error)=>{
+                Toast('没有更多数据了~')
+            })
         }
     },directives: {
         WaterfallLower: Waterfall('lower')
