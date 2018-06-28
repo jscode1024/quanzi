@@ -96,7 +96,8 @@ export default {
                     this.contentList=this.contentList.concat(response.data.data.list)
                     this.contentListLength=this.contentList.length
                     this.hasNextPage=response.data.data.hasNextPage
-                    this.pageNum=response.data.data.nextPage
+                    // this.pageNum=response.data.data.nextPage
+                    this.total=response.data.data.total
                 }
                 Toast.clear()
                 this.loading = false;
